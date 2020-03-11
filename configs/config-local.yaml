@@ -1,0 +1,18 @@
+migration:
+  path: "file:../../assets/migrations"
+swagger:
+  path: "./../../api/swagger-ui"
+  url: "/swagger-ui"
+db_config:
+  addr: "127.0.0.1:5432"
+  database: "postgres"
+  user: "postgres"
+  password: "$PASSWORD"
+centrifuge:
+  addr: ws://localhost/connection/websocket
+  client_id: backend
+  hmac_secret: OGVhNjQxNGUtN2IxZi01ZTU2LTlkZDUtZDg3MzljNTY5NmU3
+server:
+  gateway_address: :80
+  grpc_address: :50052
+  base_path: /api

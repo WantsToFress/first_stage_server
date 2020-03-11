@@ -1,0 +1,19 @@
+version: '3'
+services:
+  postgres:
+    image: postgres:11
+    hostname: postgres
+  back:
+    build: .
+    ports:
+      - "80:80"
+    depends_on:
+      - postgres
+  centrifugo:
+    image: centrifugo/centrifugo:v2.3.1
+    entrypoint: centrifugo
+    command: -c "centrifugo-config.yaml"
+    volumes:
+      - ./configs:/centrifugo
+    ports:
+      - "8000:8000"

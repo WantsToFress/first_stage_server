@@ -1,0 +1,425 @@
+syntax = "proto3";
+
+package event;
+
+import "protoc-gen-swagger/options/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+import "protobuf/ptypes/fieldmask/fieldmask.proto";
+import "protobuf/ptypes/wrappers/wrappers.proto";
+
+option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
+    info: {
+		title: "Event Manager"
+        version: "1.0.0"
+    }
+    base_path: "/api"
+};
+
+service EventService {
+
+    //////////////////////////////// Event ////////////////////////////////
+
+    rpc CreateEvent (EventCreate) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            post: "/event"
+            body: "*"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "Create event"
+            summary: "create new event"
+            tags: "Event"
+        };
+    }
+    rpc UpdateEvent (EventUpdateRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            patch: "/event/{event.id}"
+            body: "event"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "update Event"
+            summary: "update Event"
+            tags: "Event"
+        };
+    }
+    rpc SetEventMembers (EventPersonsRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            patch: "/event/{id}/members"
+            body: "*"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "set event members"
+            summary: "set event members"
+            tags: "Event"
+        };
+    }
+    rpc GetEvent (Id) returns (Event) {
+        option (google.api.http) = {
+            get: "/event/{id}"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "get Event"
+            summary: "get Event"
+            tags: "Event"
+        };
+    }
+    rpc ListEvents (EventListRequest) returns (EventList) {
+        option (google.api.http) = {
+            get: "/events"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "list Events"
+            summary: "list Events"
+            tags: "Event"
+        };
+    }
+    rpc GetEventMembers (Id) returns (PersonList) {
+        option (google.api.http) = {
+            get: "/event/{id}/members"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "list Events"
+            summary: "list Events"
+            tags: "Event"
+        };
+    }
+    rpc GetEventAdmins (Id) returns (PersonList) {
+        option (google.api.http) = {
+            get: "/event/{id}/admins"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "list Events"
+            summary: "list Events"
+            tags: "Event"
+        };
+    }
+
+
+    //////////////////////////////// Group ////////////////////////////////
+
+    rpc CreateGroup (GroupCreate) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            post: "/group"
+            body: "*"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "Create Group"
+            summary: "create new Group"
+            tags: "Group"
+        };
+    }
+    rpc UpdateGroup (GroupUpdateRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            patch: "/group/{group.id}"
+            body: "group"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "update Group"
+            summary: "update Group"
+            tags: "Group"
+        };
+    }
+    rpc SetGroupAdmins (GroupPersonsRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            patch: "/group/{id}/members"
+            body: "*"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "update Group"
+            summary: "update Group"
+            tags: "Group"
+        };
+    }
+    rpc SetGroupMembers (GroupPersonsRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            patch: "/group/{id}/members"
+            body: "*"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "update Group"
+            summary: "update Group"
+            tags: "Group"
+        };
+    }
+    rpc GetGroup (Id) returns (Group) {
+        option (google.api.http) = {
+            get: "/group/{id}"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "get Group"
+            summary: "get Group"
+            tags: "Group"
+        };
+    }
+    rpc ListGroups (GroupListRequest) returns (GroupList) {
+        option (google.api.http) = {
+            get: "/groups"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "list Groups"
+            summary: "list Groups"
+            tags: "Group"
+        };
+    }
+    rpc GetGroupMembers (Id) returns (PersonList) {
+        option (google.api.http) = {
+            get: "/group/{id}/members"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "list Groups"
+            summary: "list Groups"
+            tags: "Group"
+        };
+    }
+    rpc GetGroupAdmins (Id) returns (PersonList) {
+        option (google.api.http) = {
+            get: "/group/{id}/admins"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "list Groups"
+            summary: "list Groups"
+            tags: "Group"
+        };
+    }
+
+    //////////////////////////////// Person ////////////////////////////////
+
+    rpc JoinEvent (PersonEventAssignment) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            patch: "/person/{id}/join/event/{event_id}"
+            body: "*"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "update Event"
+            summary: "update Event"
+            tags: "Person"
+        };
+    }
+    rpc SetAdminGroups (PersonGroupRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            patch: "/person/{id}/admin/set-groups"
+            body: "*"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "update Group"
+            summary: "update Group"
+            tags: "Person"
+        };
+    }
+    rpc SetPersonRole (PersonRoleRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            patch: "/person/{id}/role"
+            body: "*"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "update Group"
+            summary: "update Group"
+            tags: "Person"
+        };
+    }
+    rpc GetPerson (Id) returns (Person) {
+        option (google.api.http) = {
+            get: "/person/{id}"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "get person"
+            summary: "get person "
+            tags: "Person"
+        };
+    }
+    rpc ListPerson (PersonListRequest) returns (Person) {
+        option (google.api.http) = {
+            get: "/person"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "get person"
+            summary: "get person "
+            tags: "Person"
+        };
+    }
+    rpc WhoAmI (google.protobuf.Empty) returns (Person) {
+        option (google.api.http) = {
+            get: "/i"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "get self"
+            summary: "get self "
+            tags: "Person"
+        };
+    }
+}
+
+message Id {
+    string id = 1;
+}
+
+enum SortOrder {
+    NO_ORDER = 0;
+    ASC = 1;
+    DESC = 2;
+}
+
+message Pagination {
+    uint64 limit = 1;
+    uint64 offset = 2;
+    string sort_by = 3;
+    SortOrder order = 4;
+    uint64 total_hits = 5;
+}
+
+enum EventType {
+    OPENED = 0;
+    GROUP = 1;
+    CLOSED = 2;
+}
+
+message EventCreate {
+    string name = 1;
+    google.protobuf.StringValue description = 2;
+    google.protobuf.Timestamp start = 3;
+    google.protobuf.Timestamp end = 4;
+    google.protobuf.BoolValue is_self_assignable = 5;
+    EventType type = 6;
+}
+
+message EventUpdate {
+    string id = 1;
+    google.protobuf.StringValue name = 2;
+    google.protobuf.StringValue description = 3;
+    google.protobuf.Timestamp start = 4;
+    google.protobuf.Timestamp end = 5;
+    google.protobuf.BoolValue is_self_assignable = 6;
+}
+
+message EventUpdateRequest {
+    google.protobuf.FieldMask field_mask = 1;
+    EventUpdate event = 2;
+}
+
+message EventPersonsRequest {
+    string id = 1;
+    repeated string person_ids = 2;
+}
+
+message Event {
+    string id = 1;
+    google.protobuf.StringValue name = 2;
+    google.protobuf.StringValue description = 3;
+    google.protobuf.Timestamp start = 4;
+    google.protobuf.Timestamp end = 5;
+    google.protobuf.BoolValue is_self_assignable = 6;
+    repeated PersonListEntry members = 7;
+    PersonListEntry creator = 8;
+    repeated GroupListEntry groups = 9;
+    EventType type = 10;
+}
+
+message EventListRequest {
+    Pagination pagination = 1;
+    google.protobuf.StringValue name = 2;
+    google.protobuf.Timestamp start = 3;
+    google.protobuf.Timestamp end = 4;
+    google.protobuf.BoolValue is_self_assignable = 5;
+}
+
+message EventList {
+    Pagination pagination = 1;
+    repeated Event events = 2;
+}
+
+message Person {
+    string id = 1;
+    google.protobuf.StringValue full_name = 2;
+    google.protobuf.StringValue login = 3;
+    repeated GroupListEntry student_groups = 4;
+    repeated GroupListEntry admin_groups = 5;
+    Role role = 6;
+}
+
+message PersonListEntry {
+    string id = 1;
+    google.protobuf.StringValue full_name = 2;
+    google.protobuf.StringValue login = 3;
+    Role role = 4;
+}
+
+message PersonList {
+    Pagination pagination = 1;
+    repeated PersonListEntry persons = 2;
+}
+
+message GroupCreate {
+    google.protobuf.StringValue name = 1;
+    google.protobuf.StringValue description = 2;
+    repeated string member_ids = 3;
+}
+
+message GroupUpdate {
+    string id = 1;
+    google.protobuf.StringValue name = 2;
+    google.protobuf.StringValue description = 3;
+    repeated string member_ids = 4;
+}
+
+message GroupUpdateRequest {
+    google.protobuf.FieldMask field_mask = 1;
+    GroupUpdate group = 2;
+}
+
+message Group {
+    string id = 1;
+    google.protobuf.StringValue name = 2;
+    google.protobuf.StringValue description = 3;
+    repeated PersonListEntry members = 4;
+    repeated PersonListEntry admins = 5;
+}
+
+message GroupListRequest {
+    Pagination pagination = 1;
+    google.protobuf.StringValue name = 2;
+
+}
+
+message GroupList {
+    Pagination pagination = 1;
+    GroupListEntry groups = 2;
+}
+
+message GroupListEntry {
+    string id = 1;
+    google.protobuf.StringValue name = 2;
+    google.protobuf.StringValue description = 3;
+}
+
+message GroupPersonsRequest {
+    repeated string person_ids = 1;
+    string id = 2;
+}
+
+message PersonGroupRequest {
+    string id = 1;
+    repeated string group_ids = 2;
+}
+
+message PersonEventAssignment {
+    string id = 1;
+    string event_id = 2;
+}
+
+enum Role {
+    student = 0;
+    group_member = 1;
+    group_admin = 2;
+    admin = 3;
+}
+
+message PersonRoleRequest {
+    string id = 1;
+    Role role = 2;
+}
+
+message PersonListRequest {
+    Pagination pagination = 1;
+    google.protobuf.StringValue search = 2;
+}
