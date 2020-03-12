@@ -228,7 +228,7 @@ service EventService {
             tags: "Person"
         };
     }
-    rpc ListPerson (PersonListRequest) returns (Person) {
+    rpc ListPersons (PersonListRequest) returns (PersonList) {
         option (google.api.http) = {
             get: "/person"
         };
@@ -383,7 +383,7 @@ message GroupListRequest {
 
 message GroupList {
     Pagination pagination = 1;
-    GroupListEntry groups = 2;
+    repeated GroupListEntry groups = 2;
 }
 
 message GroupListEntry {

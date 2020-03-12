@@ -533,12 +533,12 @@
       "get": {
         "summary": "get person ",
         "description": "get person",
-        "operationId": "ListPerson",
+        "operationId": "ListPersons",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/eventPerson"
+              "$ref": "#/definitions/eventPersonList"
             }
           }
         },
@@ -913,7 +913,10 @@
           "$ref": "#/definitions/eventPagination"
         },
         "groups": {
-          "$ref": "#/definitions/eventGroupListEntry"
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/eventGroupListEntry"
+          }
         }
       }
     },

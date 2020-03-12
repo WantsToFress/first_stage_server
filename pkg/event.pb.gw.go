@@ -1189,34 +1189,34 @@ func local_request_EventService_GetPerson_0(ctx context.Context, marshaler runti
 }
 
 var (
-	filter_EventService_ListPerson_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+	filter_EventService_ListPersons_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 )
 
-func request_EventService_ListPerson_0(ctx context.Context, marshaler runtime.Marshaler, client EventServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_EventService_ListPersons_0(ctx context.Context, marshaler runtime.Marshaler, client EventServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq PersonListRequest
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_EventService_ListPerson_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_EventService_ListPersons_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.ListPerson(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.ListPersons(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_EventService_ListPerson_0(ctx context.Context, marshaler runtime.Marshaler, server EventServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_EventService_ListPersons_0(ctx context.Context, marshaler runtime.Marshaler, server EventServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq PersonListRequest
 	var metadata runtime.ServerMetadata
 
-	if err := runtime.PopulateQueryParameters(&protoReq, req.URL.Query(), filter_EventService_ListPerson_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.URL.Query(), filter_EventService_ListPersons_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := server.ListPerson(ctx, &protoReq)
+	msg, err := server.ListPersons(ctx, &protoReq)
 	return msg, metadata, err
 
 }
@@ -1624,7 +1624,7 @@ func RegisterEventServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 
 	})
 
-	mux.Handle("GET", pattern_EventService_ListPerson_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_EventService_ListPersons_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -1633,14 +1633,14 @@ func RegisterEventServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_EventService_ListPerson_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_EventService_ListPersons_0(rctx, inboundMarshaler, server, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_EventService_ListPerson_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_EventService_ListPersons_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -2085,7 +2085,7 @@ func RegisterEventServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 
 	})
 
-	mux.Handle("GET", pattern_EventService_ListPerson_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_EventService_ListPersons_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -2094,14 +2094,14 @@ func RegisterEventServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_EventService_ListPerson_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_EventService_ListPersons_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_EventService_ListPerson_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_EventService_ListPersons_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -2167,7 +2167,7 @@ var (
 
 	pattern_EventService_GetPerson_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 1, 0, 4, 1, 5, 1}, []string{"person", "id"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_EventService_ListPerson_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"person"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_EventService_ListPersons_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"person"}, "", runtime.AssumeColonVerbOpt(true)))
 
 	pattern_EventService_WhoAmI_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"i"}, "", runtime.AssumeColonVerbOpt(true)))
 )
@@ -2211,7 +2211,7 @@ var (
 
 	forward_EventService_GetPerson_0 = runtime.ForwardResponseMessage
 
-	forward_EventService_ListPerson_0 = runtime.ForwardResponseMessage
+	forward_EventService_ListPersons_0 = runtime.ForwardResponseMessage
 
 	forward_EventService_WhoAmI_0 = runtime.ForwardResponseMessage
 )

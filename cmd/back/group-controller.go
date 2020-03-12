@@ -452,8 +452,37 @@ func (es *EventService) GetGroup(ctx context.Context, r *event.Id) (*event.Group
 	return modelToGroup(group, members.GetPersons(), admins.GetPersons()), nil
 }
 
-func (es *EventService) ListGroups(context.Context, *event.GroupListRequest) (*event.GroupList, error) {
-	return nil, status.Error(codes.Unimplemented, "not implemented")
+func (es *EventService) ListGroups(ctx context.Context, r *event.GroupListRequest) (*event.GroupList, error) {
+	log := loggerFromContext(ctx)
+
+	groups := []*model.Group{}
+
+	query := es.db.ModelContext(ctx, &groups)
+
+	if r.GetName() != nil {
+		query.Where(model.Columns.Group.Name+" ilike concat(?::text, '%')", r.GetName().GetValue())
+	}
+
+	query, err := paginatedQuery(query, r.GetPagination())
+	if err != nil {
+		return nil, err
+	}
+
+	totalHist, err := query.SelectAndCount()
+	if err != nil {
+		log.WithError(err).Error("unable to select persons")
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	res := &event.GroupList{
+		Pagination: paginationWithHits(r.GetPagination(), totalHist),
+		Groups:     make([]*event.GroupListEntry, 0, len(groups)),
+	}
+	for i := range groups {
+		res.Groups = append(res.Groups, modelToGroupListEntry(groups[i]))
+	}
+
+	return res, nil
 }
 
 func (es *EventService) GetGroupMembers(ctx context.Context, r *event.Id) (*event.PersonList, error) {
