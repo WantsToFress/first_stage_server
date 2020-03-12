@@ -2672,7 +2672,7 @@ var (
 
 	pattern_EventService_GetPerson_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 1, 0, 4, 1, 5, 1}, []string{"person", "id"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_EventService_ListPersons_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"person"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_EventService_ListPersons_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"persons"}, "", runtime.AssumeColonVerbOpt(true)))
 
 	pattern_EventService_WhoAmI_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"i"}, "", runtime.AssumeColonVerbOpt(true)))
 

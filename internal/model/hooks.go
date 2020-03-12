@@ -3,6 +3,7 @@ package model
 import (
 	"context"
 	"github.com/go-pg/pg/v9/orm"
+	"time"
 )
 
 // Event hook
@@ -11,10 +12,15 @@ var _ orm.BeforeUpdateHook = (*Event)(nil)
 
 func (model *Event) BeforeInsert(ctx context.Context) (context.Context, error) {
 	model.ID = GenStringUUID()
+
+	model.CreatedAt = time.Now()
+	model.UpdatedAt = time.Now()
+
 	return ctx, nil
 }
 
 func (model *Event) BeforeUpdate(ctx context.Context) (context.Context, error) {
+	model.UpdatedAt = time.Now()
 	return ctx, nil
 }
 
@@ -24,10 +30,13 @@ var _ orm.BeforeUpdateHook = (*Person)(nil)
 
 func (model *Person) BeforeInsert(ctx context.Context) (context.Context, error) {
 	model.ID = GenStringUUID()
+	model.CreatedAt = time.Now()
+	model.UpdatedAt = time.Now()
 	return ctx, nil
 }
 
 func (model *Person) BeforeUpdate(ctx context.Context) (context.Context, error) {
+	model.UpdatedAt = time.Now()
 	return ctx, nil
 }
 
@@ -37,10 +46,13 @@ var _ orm.BeforeUpdateHook = (*Group)(nil)
 
 func (model *Group) BeforeInsert(ctx context.Context) (context.Context, error) {
 	model.ID = GenStringUUID()
+	model.CreatedAt = time.Now()
+	model.UpdatedAt = time.Now()
 	return ctx, nil
 }
 
 func (model *Group) BeforeUpdate(ctx context.Context) (context.Context, error) {
+	model.UpdatedAt = time.Now()
 	return ctx, nil
 }
 

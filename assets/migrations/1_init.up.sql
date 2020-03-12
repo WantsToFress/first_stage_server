@@ -108,7 +108,7 @@ CREATE UNIQUE INDEX "login_password_index" ON person USING btree (
                                                                   "login",
                                                                   "password"
     );
-CREATE UNIQUE INDEX "full_name_index" ON person USING btree (
+CREATE INDEX "full_name_index" ON person USING btree (
                                                              "full_name"
     );
 
@@ -198,11 +198,10 @@ CREATE UNIQUE INDEX "login_password_index" ON person USING btree (
                                                                   "login",
                                                                   "password"
     );
-CREATE UNIQUE INDEX "full_name_index" ON person USING btree (
+CREATE INDEX "full_name_index" ON person USING btree (
                                                              "full_name"
     );
 DROP INDEX "role_name_index";
 CREATE UNIQUE INDEX "role_name_index" ON role USING btree (
                                                            "name"
     );
-

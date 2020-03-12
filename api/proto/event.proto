@@ -266,13 +266,13 @@ service EventService {
         };
         option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
             description: "get person"
-            summary: "get person "
+            summary: "get person"
             tags: "Person"
         };
     }
     rpc ListPersons (PersonListRequest) returns (PersonList) {
         option (google.api.http) = {
-            get: "/person"
+            get: "/persons"
         };
         option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
             description: "get person"

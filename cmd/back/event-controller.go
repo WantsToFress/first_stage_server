@@ -104,7 +104,7 @@ func (es *EventService) hasWriteAccessToEvent(ctx context.Context, eventId strin
 	}
 
 	e := &model.Event{}
-	err = es.db.ModelContext(ctx, e).Where(model.Columns.Event.ID + " = ?", eventId).
+	err = es.db.ModelContext(ctx, e).Where(model.Columns.Event.ID+" = ?", eventId).
 		Select()
 	if err != nil {
 		log.WithError(err).Error("unable to select event")
@@ -121,10 +121,10 @@ func (es *EventService) hasWriteAccessToEvent(ctx context.Context, eventId strin
 
 	if user.Role == event.Role_group_admin {
 		err := es.db.ModelContext(ctx, &model.GroupEvent{}).
-			Join("inner join " + model.Tables.GroupAdmin.Name + " as ga").
-			JoinOn("t." + model.Columns.GroupEvent.GroupID + " = " + "ga." + model.Columns.GroupAdmin.GroupID).
-			Where("t." + model.Columns.GroupEvent.EventID + " = ?", eventId).
-			Where("ga." + model.Columns.GroupAdmin.PersonID + " = ?", user.Id).
+			Join("inner join "+model.Tables.GroupAdmin.Name+" as ga").
+			JoinOn("t."+model.Columns.GroupEvent.GroupID+" = "+"ga."+model.Columns.GroupAdmin.GroupID).
+			Where("t."+model.Columns.GroupEvent.EventID+" = ?", eventId).
+			Where("ga."+model.Columns.GroupAdmin.PersonID+" = ?", user.Id).
 			First()
 		if err != nil {
 			if err == pg.ErrNoRows {
@@ -152,7 +152,7 @@ func (es *EventService) hasReadAccessToEvent(ctx context.Context, eventId string
 	}
 
 	e := &model.Event{}
-	err = es.db.ModelContext(ctx, e).Where(model.Columns.Event.ID + " = ?", eventId).
+	err = es.db.ModelContext(ctx, e).Where(model.Columns.Event.ID+" = ?", eventId).
 		Select()
 	if err != nil {
 		log.WithError(err).Error("unable to select event")
@@ -218,8 +218,8 @@ func (es *EventService) hasReadAccessToEvent(ctx context.Context, eventId string
 
 	if e.Type == event.EventType_CLOSED.String() {
 		err := es.db.ModelContext(ctx, &model.EventMember{}).
-			Where(model.Columns.EventMember.EventID + " = ?", eventId).
-			Where(model.Columns.EventMember.PersonID + " = ?", user.Id).
+			Where(model.Columns.EventMember.EventID+" = ?", eventId).
+			Where(model.Columns.EventMember.PersonID+" = ?", user.Id).
 			First()
 		if err != nil {
 			if err == pg.ErrNoRows && e.CreatorID != user.Id {
@@ -316,7 +316,7 @@ func (es *EventService) CreateEvent(ctx context.Context, r *event.EventCreate) (
 			if terr != nil {
 				log.WithError(terr).Error("unable to rollback transaction")
 			}
-			return nil, status.Error(codes.Internal,err.Error())
+			return nil, status.Error(codes.Internal, err.Error())
 		}
 	}
 
@@ -348,25 +348,25 @@ func (es *EventService) UpdateEvent(ctx context.Context, r *event.EventUpdateReq
 	}
 
 	query := tx.ModelContext(ctx, (*model.Event)(nil)).
-		Where(model.Columns.Event.ID + " = ?", r.GetEvent().GetId())
+		Where(model.Columns.Event.ID+" = ?", r.GetEvent().GetId())
 
 	eventPrefix := "event."
 	flag := false
 
 	if funk.ContainsString(r.GetFieldMask().GetPaths(), eventPrefix+"name") {
-		query.Set(model.Columns.Event.Name + " = ?", r.GetEvent().GetName().GetValue())
+		query.Set(model.Columns.Event.Name+" = ?", r.GetEvent().GetName().GetValue())
 		flag = true
 	}
 	if funk.ContainsString(r.GetFieldMask().GetPaths(), eventPrefix+"description") {
-		query.Set(model.Columns.Event.Description + " = ?", stringWrapperToPtr(r.GetEvent().GetDescription()))
+		query.Set(model.Columns.Event.Description+" = ?", stringWrapperToPtr(r.GetEvent().GetDescription()))
 		flag = true
 	}
 	if funk.ContainsString(r.GetFieldMask().GetPaths(), eventPrefix+"start") {
-		query.Set(model.Columns.Event.Start + " = ?", timestampToTime(r.GetEvent().GetStart()))
+		query.Set(model.Columns.Event.Start+" = ?", timestampToTime(r.GetEvent().GetStart()))
 		flag = true
 	}
 	if funk.ContainsString(r.GetFieldMask().GetPaths(), eventPrefix+"end") {
-		query.Set(model.Columns.Event.End + " = ?", timestampToTime(r.GetEvent().GetEnd()))
+		query.Set(model.Columns.Event.End+" = ?", timestampToTime(r.GetEvent().GetEnd()))
 		flag = true
 	}
 
@@ -501,7 +501,7 @@ func (es *EventService) GetEvent(ctx context.Context, r *event.Id) (*event.Event
 	e := &model.Event{}
 	err = es.db.ModelContext(ctx, e).
 		Relation(model.Columns.Event.Creator).
-		Where(model.Columns.Event.ID + " = ?", r.GetId()).
+		Where(model.Columns.Event.ID+" = ?", r.GetId()).
 		Select()
 	if err != nil {
 		log.WithError(err).Error("unable to select event")
@@ -511,14 +511,14 @@ func (es *EventService) GetEvent(ctx context.Context, r *event.Id) (*event.Event
 	groups := []*model.Group{}
 	err = es.db.ModelContext(ctx, &groups).
 		Distinct().
-		ColumnExpr("t." + model.Columns.Group.ID).
-		ColumnExpr("t." + model.Columns.Group.Name).
-		ColumnExpr("t." + model.Columns.Group.Description).
-		ColumnExpr("t." + model.Columns.Group.CreatedAt).
-		ColumnExpr("t." + model.Columns.Group.UpdatedAt).
-		Join("inner join " + model.Tables.GroupEvent.Name + " ad ge").
-		JoinOn("t." + model.Columns.Group.ID + " = " + "ge." + model.Columns.GroupEvent.EventID).
-		Where(model.Columns.GroupEvent.EventID + " = ?", r.GetId()).
+		ColumnExpr("t."+model.Columns.Group.ID).
+		ColumnExpr("t."+model.Columns.Group.Name).
+		ColumnExpr("t."+model.Columns.Group.Description).
+		ColumnExpr("t."+model.Columns.Group.CreatedAt).
+		ColumnExpr("t."+model.Columns.Group.UpdatedAt).
+		Join("inner join "+model.Tables.GroupEvent.Name+" ad ge").
+		JoinOn("t."+model.Columns.Group.ID+" = "+"ge."+model.Columns.GroupEvent.EventID).
+		Where(model.Columns.GroupEvent.EventID+" = ?", r.GetId()).
 		Select()
 	if err != nil {
 		log.WithError(err).Error("unable to select event groups")
@@ -528,12 +528,12 @@ func (es *EventService) GetEvent(ctx context.Context, r *event.Id) (*event.Event
 	members := []*model.Person{}
 	err = es.db.ModelContext(ctx, &members).
 		Distinct().
-		ColumnExpr("t." + model.Columns.Person.ID).
-		ColumnExpr("t." + model.Columns.Person.FullName).
-		ColumnExpr("t." + model.Columns.Person.Login).
-		Join("inner join " + model.Tables.EventMember.Name + " ad ge").
-		JoinOn("t." + model.Columns.Group.ID + " = " + "ge." + model.Columns.EventMember.EventID).
-		Where(model.Columns.EventMember.EventID + " = ?", r.GetId()).
+		ColumnExpr("t."+model.Columns.Person.ID).
+		ColumnExpr("t."+model.Columns.Person.FullName).
+		ColumnExpr("t."+model.Columns.Person.Login).
+		Join("inner join "+model.Tables.EventMember.Name+" ad ge").
+		JoinOn("t."+model.Columns.Group.ID+" = "+"ge."+model.Columns.EventMember.EventID).
+		Where(model.Columns.EventMember.EventID+" = ?", r.GetId()).
 		Select()
 	if err != nil {
 		log.WithError(err).Error("unable to select event members")
@@ -588,7 +588,7 @@ func (es *EventService) ListEvents(ctx context.Context, r *event.EventListReques
 		ColumnExpr("t." + model.Columns.Event.CreatorID)
 
 	if r.GetName() != nil {
-		query.Where(model.Columns.Event.Name + " ilike (?::text, '%')", r.GetName().GetValue())
+		query.Where(model.Columns.Event.Name+" ilike (?::text, '%')", r.GetName().GetValue())
 	}
 
 	switch user.Role {
@@ -605,16 +605,16 @@ func (es *EventService) ListEvents(ctx context.Context, r *event.EventListReques
 			JoinOn("ge."+model.Columns.GroupEvent.GroupID+" = "+"ga."+model.Columns.GroupAdmin.GroupID).
 			WhereOr("t."+model.Columns.Event.Type+" = ?", event.EventType_OPENED.String()).
 			WhereOrGroup(func(q *orm.Query) (*orm.Query, error) {
-				return q.Where("em." + model.Columns.EventMember.PersonID + "is not null").
-					Where("em." + model.Columns.EventMember.PersonID + " = ?", user.Id), nil
+				return q.Where("em."+model.Columns.EventMember.PersonID+" is not null").
+					Where("em."+model.Columns.EventMember.PersonID+" = ?", user.Id), nil
 			}).
 			WhereOrGroup(func(q *orm.Query) (*orm.Query, error) {
-				return q.Where("gm." + model.Columns.GroupMember.PersonID + "is not null").
-					Where("gm." + model.Columns.GroupMember.PersonID + " = ?", user.Id), nil
+				return q.Where("gm."+model.Columns.GroupMember.PersonID+" is not null").
+					Where("gm."+model.Columns.GroupMember.PersonID+" = ?", user.Id), nil
 			}).
 			WhereOrGroup(func(q *orm.Query) (*orm.Query, error) {
-				return q.Where("ga." + model.Columns.GroupAdmin.PersonID + "is not null").
-					Where("ga." + model.Columns.GroupAdmin.PersonID + " = ?", user.Id), nil
+				return q.Where("ga."+model.Columns.GroupAdmin.PersonID+" is not null").
+					Where("ga."+model.Columns.GroupAdmin.PersonID+" = ?", user.Id), nil
 			})
 	case event.Role_group_member:
 		query.Join("left join "+model.Tables.EventMember.Name+" as em").
@@ -626,20 +626,20 @@ func (es *EventService) ListEvents(ctx context.Context, r *event.EventListReques
 			JoinOn("ge."+model.Columns.GroupEvent.GroupID+" = "+"gm."+model.Columns.GroupMember.GroupID).
 			WhereOr("t."+model.Columns.Event.Type+" = ?", event.EventType_OPENED.String()).
 			WhereOrGroup(func(q *orm.Query) (*orm.Query, error) {
-				return q.Where("em." + model.Columns.EventMember.PersonID + "is not null").
-					Where("em." + model.Columns.EventMember.PersonID + " = ?", user.Id), nil
+				return q.Where("em."+model.Columns.EventMember.PersonID+" is not null").
+					Where("em."+model.Columns.EventMember.PersonID+" = ?", user.Id), nil
 			}).
 			WhereOrGroup(func(q *orm.Query) (*orm.Query, error) {
-				return q.Where("gm." + model.Columns.GroupMember.PersonID + "is not null").
-					Where("gm." + model.Columns.GroupMember.PersonID + " = ?", user.Id), nil
+				return q.Where("gm."+model.Columns.GroupMember.PersonID+" is not null").
+					Where("gm."+model.Columns.GroupMember.PersonID+" = ?", user.Id), nil
 			})
 	case event.Role_student:
 		query.Join("left join "+model.Tables.EventMember.Name+" as em").
 			JoinOn("t."+model.Columns.Event.ID+" = "+"em."+model.Columns.EventMember.EventID).
 			WhereOr("t."+model.Columns.Event.Type+" = ?", event.EventType_OPENED.String()).
 			WhereOrGroup(func(q *orm.Query) (*orm.Query, error) {
-				return q.Where("em." + model.Columns.EventMember.PersonID + "is not null").
-					Where("em." + model.Columns.EventMember.PersonID + " = ?", user.Id), nil
+				return q.Where("em."+model.Columns.EventMember.PersonID+" is not null").
+					Where("em."+model.Columns.EventMember.PersonID+" = ?", user.Id), nil
 			})
 	default:
 		return nil, status.Error(codes.PermissionDenied, "invalid role")
@@ -663,8 +663,8 @@ func (es *EventService) ListEvents(ctx context.Context, r *event.EventListReques
 	}
 
 	res := &event.EventList{
-		Pagination:paginationWithHits(r.GetPagination(), totalHits),
-		Events: make([]*event.EventListEntry, 0, len(events)),
+		Pagination: paginationWithHits(r.GetPagination(), totalHits),
+		Events:     make([]*event.EventListEntry, 0, len(events)),
 	}
 
 	for i := range events {
@@ -695,7 +695,7 @@ func (es *EventService) GetEventAdmins(ctx context.Context, r *event.Id) (*event
 	e := &model.Event{}
 	err = es.db.ModelContext(ctx, e).
 		Relation(model.Columns.Event.Creator).
-		Where(model.Columns.Event.ID + " = ?", r.GetId()).
+		Where(model.Columns.Event.ID+" = ?", r.GetId()).
 		Select()
 	if err != nil {
 		log.WithError(err).Error("unable to select event")
@@ -705,7 +705,7 @@ func (es *EventService) GetEventAdmins(ctx context.Context, r *event.Id) (*event
 	if e.Type != event.EventType_GROUP.String() {
 		person := &model.Person{}
 		err := es.db.ModelContext(ctx, person).
-			Where(model.Columns.Person.ID + " = ?", e.CreatorID).
+			Where(model.Columns.Person.ID+" = ?", e.CreatorID).
 			Select()
 		if err != nil {
 			log.WithError(err).Error("unable to select person")
@@ -722,16 +722,16 @@ func (es *EventService) GetEventAdmins(ctx context.Context, r *event.Id) (*event
 
 	err = es.db.ModelContext(ctx, persons).
 		Distinct().
-		ColumnExpr("t." + model.Columns.Person.ID).
-		ColumnExpr("t." + model.Columns.Person.FullName).
-		ColumnExpr("t." + model.Columns.Person.Login).
-		ColumnExpr("t." + model.Columns.Person.CreatedAt).
-		ColumnExpr("t." + model.Columns.Person.UpdatedAt).
-		Join("inner join " + model.Tables.GroupAdmin.Name + " as ga").
-		JoinOn("t." + model.Columns.Person.ID + " = " + "ga." + model.Columns.GroupAdmin.PersonID).
-		Join("inner join " + model.Tables.GroupEvent.Name + " as ge").
-		JoinOn("ga." + model.Columns.GroupAdmin.GroupID + " = " + "ge." + model.Columns.GroupEvent.GroupID).
-		Where("ge." + model.Columns.GroupEvent.EventID + " = ?", r.GetId()).
+		ColumnExpr("t."+model.Columns.Person.ID).
+		ColumnExpr("t."+model.Columns.Person.FullName).
+		ColumnExpr("t."+model.Columns.Person.Login).
+		ColumnExpr("t."+model.Columns.Person.CreatedAt).
+		ColumnExpr("t."+model.Columns.Person.UpdatedAt).
+		Join("inner join "+model.Tables.GroupAdmin.Name+" as ga").
+		JoinOn("t."+model.Columns.Person.ID+" = "+"ga."+model.Columns.GroupAdmin.PersonID).
+		Join("inner join "+model.Tables.GroupEvent.Name+" as ge").
+		JoinOn("ga."+model.Columns.GroupAdmin.GroupID+" = "+"ge."+model.Columns.GroupEvent.GroupID).
+		Where("ge."+model.Columns.GroupEvent.EventID+" = ?", r.GetId()).
 		Select()
 	if err != nil {
 		log.WithError(err).Error("unable to select persons")

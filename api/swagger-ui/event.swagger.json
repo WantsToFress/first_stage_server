@@ -606,71 +606,6 @@
         ]
       }
     },
-    "/person": {
-      "get": {
-        "summary": "get person ",
-        "description": "get person",
-        "operationId": "ListPersons",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/eventPersonList"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "pagination.limit",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "format": "uint64"
-          },
-          {
-            "name": "pagination.offset",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "format": "uint64"
-          },
-          {
-            "name": "pagination.sort_by",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "pagination.order",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "enum": [
-              "NO_ORDER",
-              "ASC",
-              "DESC"
-            ],
-            "default": "NO_ORDER"
-          },
-          {
-            "name": "pagination.total_hits",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "format": "uint64"
-          },
-          {
-            "name": "search",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          }
-        ],
-        "tags": [
-          "Person"
-        ]
-      }
-    },
     "/person/{id}": {
       "get": {
         "summary": "get person ",
@@ -824,6 +759,71 @@
             "schema": {
               "$ref": "#/definitions/eventPersonRoleRequest"
             }
+          }
+        ],
+        "tags": [
+          "Person"
+        ]
+      }
+    },
+    "/persons": {
+      "get": {
+        "summary": "get person ",
+        "description": "get person",
+        "operationId": "ListPersons",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/eventPersonList"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "pagination.limit",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "pagination.offset",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "pagination.sort_by",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "pagination.order",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "NO_ORDER",
+              "ASC",
+              "DESC"
+            ],
+            "default": "NO_ORDER"
+          },
+          {
+            "name": "pagination.total_hits",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "type": "string"
           }
         ],
         "tags": [

@@ -14,7 +14,6 @@ import (
 	"syscall"
 
 	"github.com/go-chi/chi"
-	"github.com/golang-migrate/migrate/v4"
 	grpcmiddleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/sirupsen/logrus"
@@ -44,19 +43,17 @@ func main() {
 
 	ctx := contextWithLogger(context.Background(), log)
 
-	log.WithField("sas", config.Migration).Info()
-
-	// migrate database
-	err = Migrate(config.DB, config.Migration)
-	if err != nil {
-		if err != migrate.ErrNoChange && err != migrate.ErrNilVersion {
-			log.WithError(err).Fatal("error on migrate")
-		} else {
-			log.Info("no actual migrations found")
-		}
-	} else {
-		log.Info("all migrations was executed correctly")
-	}
+	//// migrate database
+	//err = Migrate(config.DB, config.Migration)
+	//if err != nil {
+	//	if err != migrate.ErrNoChange && err != migrate.ErrNilVersion {
+	//		log.WithError(err).Fatal("error on migrate")
+	//	} else {
+	//		log.Info("no actual migrations found")
+	//	}
+	//} else {
+	//	log.Info("all migrations was executed correctly")
+	//}
 
 	// create db connection
 	db, err := NewDBServer(ctx, config.DB)
@@ -99,6 +96,8 @@ func main() {
 		publicKey:  pubkey,
 	}
 
+	//eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6InZwYnVraHRpIiwiZXhwIjoiMjAyMC0wMy0xNVQyMzozNzoxNS4zMTE2NDcrMDM6MDAifQ.lwj63bC1xyAL0zxwnr83IUQRaPshGLTAFTbDDqMm9_bC8lCng1SCqDQH-3LD2owd_CUjVgw5iIWVhySGWWDzIpe-W5n_JXbhYOpm9U8FHflubu-30aO3mCbn7shsgeCj6PwUNuz-TbUEIaR7uVvC1abjyvX1bQgUyA8QeUp9MdHQCecr7kCmglbvow3EHtI2yaIfpIT2BAj-lAH2DI2cpoJY2tdzF2Mo6IvESHMAUqHd7_IzIS27uiKxnvtDz8mLeKmho6C_DvdMJ1TMCNjaqYi7hqokQPhIdpN18HXuLDeyP1uGNAaZvHFvpw91fRdxv3sQ4sijTJKlF1bx6FMszQ
+
 	// grpc
 	lis, err := net.Listen("tcp", config.Server.GrpcAddress)
 	if err != nil {
@@ -108,6 +107,10 @@ func main() {
 	// person grpc server
 	unaryInterceptors := []grpc.UnaryServerInterceptor{}
 	unaryInterceptors = append(unaryInterceptors,
+		func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+			ctx = contextWithLogger(ctx, log)
+			return handler(ctx, req)
+		},
 		ps.AuthInterceptor,
 	)
 
@@ -159,6 +162,12 @@ func main() {
 			if err == nil {
 				r.Header.Set("Authorization", cookie.Value)
 			}
+			next.ServeHTTP(w, r)
+		})
+	})
+	router.Use(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			r = r.WithContext(contextWithLogger(r.Context(), log))
 			next.ServeHTTP(w, r)
 		})
 	})

@@ -59,16 +59,16 @@ func (es *EventService) GetPerson(ctx context.Context, r *event.Id) (*event.Pers
 	user := &model.Person{}
 	err := es.db.ModelContext(ctx, user).
 		Relation(model.Columns.Person.Role).
-		Where(model.Columns.Person.ID+" = ?", r.GetId()).
+		Where("t."+model.Columns.Person.ID+" = ?", r.GetId()).
 		Select()
 	if err != nil {
-		log.WithError(err).Error("unable to get person by login")
+		log.WithError(err).Error("unable to get person by id")
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	memberGroups := []*model.Group{}
 
-	err = es.db.ModelContext(ctx, memberGroups).
+	err = es.db.ModelContext(ctx, &memberGroups).
 		Distinct().
 		ColumnExpr("t."+model.Columns.Group.ID).
 		ColumnExpr("t."+model.Columns.Group.Name).
@@ -84,7 +84,7 @@ func (es *EventService) GetPerson(ctx context.Context, r *event.Id) (*event.Pers
 
 	adminGroups := []*model.Group{}
 
-	err = es.db.ModelContext(ctx, adminGroups).
+	err = es.db.ModelContext(ctx, &adminGroups).
 		Distinct().
 		ColumnExpr("t."+model.Columns.Group.ID).
 		ColumnExpr("t."+model.Columns.Group.Name).

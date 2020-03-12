@@ -531,19 +531,6 @@ func (es *EventService) GetGroup(ctx context.Context, r *event.Id) (*event.Group
 		return nil, err
 	}
 
-	err = es.db.ModelContext(ctx, &admins).
-		Distinct().
-		Join("inner join " + model.Tables.Person.Name + " as p").
-		JoinOn("t." + model.Columns.GroupAdmin.PersonID + " = " + "p." + model.Columns.Person.ID).
-		ColumnExpr("p." + model.Columns.Person.ID).
-		ColumnExpr("p." + model.Columns.Person.FullName).
-		ColumnExpr("p." + model.Columns.Person.Login).
-		Select()
-	if err != nil {
-		log.WithError(err).Error("unable to select members")
-		return nil, status.Error(codes.Internal, err.Error())
-	}
-
 	return modelToGroup(group, members.GetPersons(), admins.GetPersons()), nil
 }
 
@@ -596,11 +583,12 @@ func (es *EventService) GetGroupMembers(ctx context.Context, r *event.Id) (*even
 
 	err = es.db.ModelContext(ctx, &members).
 		Distinct().
-		Join("inner join " + model.Tables.Person.Name + " as p").
-		JoinOn("t." + model.Columns.GroupMember.PersonID + " = " + "p." + model.Columns.Person.ID).
-		ColumnExpr("p." + model.Columns.Person.ID).
-		ColumnExpr("p." + model.Columns.Person.FullName).
-		ColumnExpr("p." + model.Columns.Person.Login).
+		Join("inner join "+model.Tables.GroupMember.Name+" as p").
+		JoinOn("p."+model.Columns.GroupMember.PersonID+" = "+"t."+model.Columns.Person.ID).
+		ColumnExpr("t."+model.Columns.Person.ID).
+		ColumnExpr("t."+model.Columns.Person.FullName).
+		ColumnExpr("t."+model.Columns.Person.Login).
+		Where("p."+model.Columns.GroupMember.GroupID+" = ?", r.GetId()).
 		Select()
 	if err != nil {
 		log.WithError(err).Error("unable to select members")
@@ -629,11 +617,12 @@ func (es *EventService) GetGroupAdmins(ctx context.Context, r *event.Id) (*event
 
 	err = es.db.ModelContext(ctx, &admins).
 		Distinct().
-		Join("inner join " + model.Tables.Person.Name + " as p").
-		JoinOn("t." + model.Columns.GroupAdmin.PersonID + " = " + "p." + model.Columns.Person.ID).
-		ColumnExpr("p." + model.Columns.Person.ID).
-		ColumnExpr("p." + model.Columns.Person.FullName).
-		ColumnExpr("p." + model.Columns.Person.Login).
+		Join("inner join "+model.Tables.GroupAdmin.Name+" as p").
+		JoinOn("p."+model.Columns.GroupAdmin.PersonID+" = "+"t."+model.Columns.Person.ID).
+		ColumnExpr("t."+model.Columns.Person.ID).
+		ColumnExpr("t."+model.Columns.Person.FullName).
+		ColumnExpr("t."+model.Columns.Person.Login).
+		Where("p."+model.Columns.GroupAdmin.GroupID+" = ?", r.GetId()).
 		Select()
 	if err != nil {
 		log.WithError(err).Error("unable to select members")

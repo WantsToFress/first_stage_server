@@ -33,7 +33,7 @@ func (es *EventService) GetChatToken(ctx context.Context, r *event.Id) (*event.C
 	token := jwt.New(jwt.SigningMethodHS256)
 	token.Claims = jwt.MapClaims{
 		"sub": user.Login,
-		"exp": time.Now().Add(time.Hour*24),
+		"exp": time.Now().Add(time.Hour * 24),
 	}
 	tokenRaw, err := token.SignedString(es.hmacSecret)
 	if err != nil {
