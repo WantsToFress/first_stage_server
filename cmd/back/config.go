@@ -13,6 +13,7 @@ type Config struct {
 	DB         *pg.Options       `yaml:"db_config"`
 	Migration  MigrationConfig   `yaml:"migration"`
 	Centrifuge *CentrifugeConfig `yaml:"centrifuge"`
+	Auth AuthConfig `yaml:"auth"`
 }
 
 type Swagger struct {
@@ -24,6 +25,11 @@ type Server struct {
 	GrpcAddress    string `yaml:"grpc_address"`
 	GatewayAddress string `yaml:"gateway_address"`
 	BasePath       string `yaml:"base_path"`
+}
+
+type AuthConfig struct {
+	PrivateKey string `yaml:"private_key"`
+	PublicKey string `yaml:"public_key"`
 }
 
 func Configure(fileName string) (Config, error) {

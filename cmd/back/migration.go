@@ -13,15 +13,10 @@ type MigrationConfig struct {
 	Path string `yaml:"path"`
 }
 
-func Migrate(dbConfig *pg.Options, migraionConfig MigrationConfig) (err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err, _ = r.(error)
-		}
-	}()
-
+func Migrate(dbConfig *pg.Options, migraionConfig MigrationConfig) (error) {
 	connectionString := "postgres://" + dbConfig.User + ":" + dbConfig.Password + "@" + dbConfig.Addr + "/" + dbConfig.Database + "?sslmode=disable"
 	var m *migrate.Migrate
+	var err error
 
 	for i := 0; i < 60; i++ {
 		m, err = migrate.New(migraionConfig.Path, connectionString)

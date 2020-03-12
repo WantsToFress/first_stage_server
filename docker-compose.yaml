@@ -3,6 +3,8 @@ services:
   postgres:
     image: postgres:11
     hostname: postgres
+    environment:
+      - POSTGRES_PASSWORD=secret_password
   back:
     build: .
     ports:

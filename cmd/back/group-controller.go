@@ -118,7 +118,7 @@ func (es *EventService) CreateGroup(ctx context.Context, r *event.GroupCreate) (
 
 	group := &model.Group{
 		Name:        r.GetName().GetValue(),
-		Decsription: stringWrapperToPtr(r.GetDescription()),
+		Description: stringWrapperToPtr(r.GetDescription()),
 	}
 
 	_, err = tx.ModelContext(ctx, group).
@@ -261,13 +261,28 @@ func (es *EventService) UpdateGroup(ctx context.Context, r *event.GroupUpdateReq
 		Where(model.Columns.Group.ID+" = ?", r.GetGroup().GetId())
 
 	groupPrefix := "group."
+	flag := false
 
 	if funk.ContainsString(r.GetFieldMask().GetPaths(), groupPrefix+"name") {
 		query.Set(model.Columns.Group.Name+" = ?", r.GetGroup().GetName())
+		flag = true
 	}
 
 	if funk.ContainsString(r.GetFieldMask().GetPaths(), groupPrefix+"description") {
-		query.Set(model.Columns.Group.Decsription+" = ?", stringWrapperToPtr(r.GetGroup().GetDescription()))
+		query.Set(model.Columns.Group.Description+" = ?", stringWrapperToPtr(r.GetGroup().GetDescription()))
+		flag = true
+	}
+
+	if flag {
+		_, err = query.Update()
+		if err != nil {
+			log.WithError(err).Error("unable to update group")
+			terr := tx.Rollback()
+			if terr != nil {
+				log.WithError(terr).Error("unable to rollback transaction")
+			}
+			return nil, status.Error(codes.Internal, err.Error())
+		}
 	}
 
 	if funk.ContainsString(r.GetFieldMask().GetPaths(), groupPrefix+"member_ids") {
@@ -386,12 +401,92 @@ func (es *EventService) SetGroupAdmins(ctx context.Context, r *event.GroupPerson
 	return &empty.Empty{}, nil
 }
 
+func (es *EventService) AddGroupAdmins(ctx context.Context, r *event.GroupPersonsRequest) (*empty.Empty, error) {
+	log := loggerFromContext(ctx)
+
+	if !model.IsValidUUID(r.GetId()) {
+		return nil, status.Error(codes.InvalidArgument, "invalid id")
+	}
+
+	err := es.hasWriteAccessToGroup(ctx, r.GetId())
+	if err != nil {
+		return nil, err
+	}
+
+	tx, err := es.db.WithContext(ctx).Begin()
+	if err != nil {
+		log.WithError(err).Error("unable to begin transaction")
+		return nil, status.Error(codes.Internal, "unable to begin transaction")
+	}
+
+	err = es.bindAdminsToGroup(ctx, tx, r.GetId(), r.GetPersonIds())
+	if err != nil {
+		terr := tx.Rollback()
+		if terr != nil {
+			log.WithError(terr).Error("unable to rollback transaction")
+		}
+		return nil, err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		log.WithError(err).Error("unable to commit transaction")
+		return nil, status.Error(codes.Internal, "unable to commit transaction")
+	}
+
+	return &empty.Empty{}, nil
+}
+
+func (es *EventService) AddGroupMembers(ctx context.Context, r *event.GroupPersonsRequest) (*empty.Empty, error) {
+	log := loggerFromContext(ctx)
+
+	if !model.IsValidUUID(r.GetId()) {
+		return nil, status.Error(codes.InvalidArgument, "invalid id")
+	}
+
+	err := es.hasWriteAccessToGroup(ctx, r.GetId())
+	if err != nil {
+		return nil, err
+	}
+
+	tx, err := es.db.WithContext(ctx).Begin()
+	if err != nil {
+		log.WithError(err).Error("unable to begin transaction")
+		return nil, status.Error(codes.Internal, "unable to begin transaction")
+	}
+
+	err = es.unbindMembersToGroup(ctx, tx, r.GetId())
+	if err != nil {
+		terr := tx.Rollback()
+		if terr != nil {
+			log.WithError(terr).Error("unable to rollback transaction")
+		}
+		return nil, err
+	}
+	err = es.bindMembersToGroup(ctx, tx, r.GetId(), r.GetPersonIds())
+	if err != nil {
+		terr := tx.Rollback()
+		if terr != nil {
+			log.WithError(terr).Error("unable to rollback transaction")
+		}
+		return nil, err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		log.WithError(err).Error("unable to commit transaction")
+		return nil, status.Error(codes.Internal, "unable to commit transaction")
+	}
+
+	return &empty.Empty{}, nil
+}
+
 func modelToGroup(group *model.Group, members []*event.PersonListEntry, admins []*event.PersonListEntry) *event.Group {
 	res := &event.Group{}
 
 	res.Id = group.ID
 	res.Name = stringToStringWrapper(group.Name)
-	res.Description = ptrToStringWrapper(group.Decsription)
+	res.Description = ptrToStringWrapper(group.Description)
 	res.Members = members
 	res.Admins = admins
 
@@ -403,7 +498,7 @@ func modelToGroupListEntry(group *model.Group) *event.GroupListEntry {
 
 	res.Id = group.ID
 	res.Name = stringToStringWrapper(group.Name)
-	res.Description = ptrToStringWrapper(group.Decsription)
+	res.Description = ptrToStringWrapper(group.Description)
 
 	return res
 }
@@ -463,7 +558,11 @@ func (es *EventService) ListGroups(ctx context.Context, r *event.GroupListReques
 		query.Where(model.Columns.Group.Name+" ilike concat(?::text, '%')", r.GetName().GetValue())
 	}
 
-	query, err := paginatedQuery(query, r.GetPagination())
+	query, err := paginatedQuery(query, r.GetPagination(),
+		model.Columns.Group.Name,
+		model.Columns.Group.CreatedAt,
+		model.Columns.Group.UpdatedAt,
+	)
 	if err != nil {
 		return nil, err
 	}

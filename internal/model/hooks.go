@@ -95,3 +95,16 @@ func (model *Role) BeforeInsert(ctx context.Context) (context.Context, error) {
 func (model *Role) BeforeUpdate(ctx context.Context) (context.Context, error) {
 	return ctx, nil
 }
+
+// Role hook
+var _ orm.BeforeInsertHook = (*EventMember)(nil)
+var _ orm.BeforeUpdateHook = (*EventMember)(nil)
+
+func (model *EventMember) BeforeInsert(ctx context.Context) (context.Context, error) {
+	model.ID = GenStringUUID()
+	return ctx, nil
+}
+
+func (model *EventMember) BeforeUpdate(ctx context.Context) (context.Context, error) {
+	return ctx, nil
+}

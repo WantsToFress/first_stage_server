@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"encoding/base64"
 	"flag"
+	"github.com/dgrijalva/jwt-go"
 	stdlog "log"
 	"net"
 	"net/http"
@@ -42,6 +44,8 @@ func main() {
 
 	ctx := contextWithLogger(context.Background(), log)
 
+	log.WithField("sas", config.Migration).Info()
+
 	// migrate database
 	err = Migrate(config.DB, config.Migration)
 	if err != nil {
@@ -68,10 +72,31 @@ func main() {
 	}
 	defer cent.Close()
 
+	pubkeyRaw, err := base64.StdEncoding.DecodeString(config.Auth.PublicKey)
+	if err != nil {
+		log.WithError(err).Fatal("unable to decode pubkey")
+	}
+	privkeyRaw, err := base64.StdEncoding.DecodeString(config.Auth.PrivateKey)
+	if err != nil {
+		log.WithError(err).Fatal("unable to decode privkey")
+	}
+
+	pubkey, err := jwt.ParseRSAPublicKeyFromPEM(pubkeyRaw)
+	if err != nil {
+		log.WithError(err).Fatal("unable to parse pubkey")
+	}
+	privkey, err := jwt.ParseRSAPrivateKeyFromPEM(privkeyRaw)
+	if err != nil {
+		log.WithError(err).Fatal("unable to parse privkey")
+	}
+
 	// back service
 	ps := EventService{
-		db:   db.Conn,
-		cent: cent,
+		db:         db.Conn,
+		cent:       cent,
+		hmacSecret: []byte(config.Centrifuge.HMACSecret),
+		privateKey: privkey,
+		publicKey:  pubkey,
 	}
 
 	// grpc
@@ -127,6 +152,16 @@ func main() {
 	}
 
 	router := chi.NewRouter()
+
+	router.Use(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			cookie, err := r.Cookie("mycookie")
+			if err == nil {
+				r.Header.Set("Authorization", cookie.Value)
+			}
+			next.ServeHTTP(w, r)
+		})
+	})
 
 	router.Post(path.Join(config.Server.BasePath, "login"), ps.Login)
 	router.Post(path.Join(config.Server.BasePath, "register"), ps.Register)

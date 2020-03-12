@@ -7,12 +7,17 @@ import (
 )
 
 type ColumnsEvent struct {
-	ID, Name, Description, Start, End, CreatorID string
-	Creator, CreatorRel                          string
+	ID, Name, Description, Start, End, CreatorID, Type, CreatedAt, UpdatedAt string
+	Creator, CreatorRel                                                      string
+}
+
+type ColumnsEventMember struct {
+	ID, PersonID, EventID string
+	Event, Person         string
 }
 
 type ColumnsGroup struct {
-	ID, Name, Decsription string
+	ID, Name, Description, CreatedAt, UpdatedAt string
 }
 
 type ColumnsGroupAdmin struct {
@@ -31,8 +36,8 @@ type ColumnsGroupMember struct {
 }
 
 type ColumnsPerson struct {
-	ID, FullName, Login, Password, RoleID string
-	Role                                  string
+	ID, FullName, Login, Password, RoleID, CreatedAt, UpdatedAt string
+	Role                                                        string
 }
 
 type ColumnsRole struct {
@@ -45,6 +50,7 @@ type ColumnsSchemaMigration struct {
 
 type ColumnsSt struct {
 	Event           ColumnsEvent
+	EventMember     ColumnsEventMember
 	Group           ColumnsGroup
 	GroupAdmin      ColumnsGroupAdmin
 	GroupEvent      ColumnsGroupEvent
@@ -62,14 +68,27 @@ var Columns = ColumnsSt{
 		Start:       "start",
 		End:         "end",
 		CreatorID:   "creator_id",
+		Type:        "type",
+		CreatedAt:   "created_at",
+		UpdatedAt:   "updated_at",
 
 		Creator:    "Creator",
 		CreatorRel: "CreatorRel",
 	},
+	EventMember: ColumnsEventMember{
+		ID:       "id",
+		PersonID: "person_id",
+		EventID:  "event_id",
+
+		Event:  "Event",
+		Person: "Person",
+	},
 	Group: ColumnsGroup{
 		ID:          "id",
 		Name:        "name",
-		Decsription: "decsription",
+		Description: "description",
+		CreatedAt:   "created_at",
+		UpdatedAt:   "updated_at",
 	},
 	GroupAdmin: ColumnsGroupAdmin{
 		ID:       "id",
@@ -96,11 +115,13 @@ var Columns = ColumnsSt{
 		Person: "Person",
 	},
 	Person: ColumnsPerson{
-		ID:       "id",
-		FullName: "full_name",
-		Login:    "login",
-		Password: "password",
-		RoleID:   "role_id",
+		ID:        "id",
+		FullName:  "full_name",
+		Login:     "login",
+		Password:  "password",
+		RoleID:    "role_id",
+		CreatedAt: "created_at",
+		UpdatedAt: "updated_at",
 
 		Role: "Role",
 	},
@@ -115,6 +136,10 @@ var Columns = ColumnsSt{
 }
 
 type TableEvent struct {
+	Name, Alias string
+}
+
+type TableEventMember struct {
 	Name, Alias string
 }
 
@@ -148,6 +173,7 @@ type TableSchemaMigration struct {
 
 type TablesSt struct {
 	Event           TableEvent
+	EventMember     TableEventMember
 	Group           TableGroup
 	GroupAdmin      TableGroupAdmin
 	GroupEvent      TableGroupEvent
@@ -160,6 +186,10 @@ type TablesSt struct {
 var Tables = TablesSt{
 	Event: TableEvent{
 		Name:  "event",
+		Alias: "t",
+	},
+	EventMember: TableEventMember{
+		Name:  "event_member",
 		Alias: "t",
 	},
 	Group: TableGroup{
@@ -201,17 +231,33 @@ type Event struct {
 	Start       time.Time `sql:"start,notnull"`
 	End         time.Time `sql:"end,notnull"`
 	CreatorID   string    `sql:"creator_id,type:uuid,notnull"`
+	Type        string    `sql:"type,notnull"`
+	CreatedAt   time.Time `sql:"created_at,notnull"`
+	UpdatedAt   time.Time `sql:"updated_at,notnull"`
 
 	Creator    *Person `pg:"fk:creator_id"`
 	CreatorRel *Person `pg:"fk:creator_id"`
 }
 
+type EventMember struct {
+	tableName struct{} `sql:"event_member,alias:t" pg:",discard_unknown_columns"`
+
+	ID       string `sql:"id,pk,type:uuid"`
+	PersonID string `sql:"person_id,type:uuid,notnull"`
+	EventID  string `sql:"event_id,type:uuid,notnull"`
+
+	Event  *Event  `pg:"fk:event_id"`
+	Person *Person `pg:"fk:person_id"`
+}
+
 type Group struct {
 	tableName struct{} `sql:"group,alias:t" pg:",discard_unknown_columns"`
 
-	ID          string  `sql:"id,pk,type:uuid"`
-	Name        string  `sql:"name,notnull"`
-	Decsription *string `sql:"decsription"`
+	ID          string    `sql:"id,pk,type:uuid"`
+	Name        string    `sql:"name,notnull"`
+	Description *string   `sql:"description"`
+	CreatedAt   time.Time `sql:"created_at,notnull"`
+	UpdatedAt   time.Time `sql:"updated_at,notnull"`
 }
 
 type GroupAdmin struct {
@@ -250,11 +296,13 @@ type GroupMember struct {
 type Person struct {
 	tableName struct{} `sql:"person,alias:t" pg:",discard_unknown_columns"`
 
-	ID       string `sql:"id,pk,type:uuid"`
-	FullName string `sql:"full_name,notnull"`
-	Login    string `sql:"login,notnull"`
-	Password string `sql:"password,notnull"`
-	RoleID   string `sql:"role_id,type:uuid,notnull"`
+	ID        string    `sql:"id,pk,type:uuid"`
+	FullName  string    `sql:"full_name,notnull"`
+	Login     string    `sql:"login,notnull"`
+	Password  string    `sql:"password,notnull"`
+	RoleID    string    `sql:"role_id,type:uuid,notnull"`
+	CreatedAt time.Time `sql:"created_at,notnull"`
+	UpdatedAt time.Time `sql:"updated_at,notnull"`
 
 	Role *Role `pg:"fk:role_id"`
 }

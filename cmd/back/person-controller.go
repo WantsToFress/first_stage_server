@@ -31,7 +31,7 @@ func modelToPerson(person *model.Person, memberGroups, adminGroups []*model.Grou
 	res.Id = person.ID
 	res.Login = stringToStringWrapper(person.Login)
 	res.FullName = stringToStringWrapper(person.FullName)
-	res.StudentGroups = make([]*event.GroupListEntry, 0, len(memberGroups))
+	res.MemberGroups = make([]*event.GroupListEntry, 0, len(memberGroups))
 	res.AdminGroups = make([]*event.GroupListEntry, 0, len(adminGroups))
 
 	if person.Role != nil {
@@ -39,7 +39,7 @@ func modelToPerson(person *model.Person, memberGroups, adminGroups []*model.Grou
 	}
 
 	for i := range memberGroups {
-		res.StudentGroups = append(res.StudentGroups, modelToGroupListEntry(memberGroups[i]))
+		res.MemberGroups = append(res.MemberGroups, modelToGroupListEntry(memberGroups[i]))
 	}
 
 	for i := range adminGroups {
@@ -72,7 +72,7 @@ func (es *EventService) GetPerson(ctx context.Context, r *event.Id) (*event.Pers
 		Distinct().
 		ColumnExpr("t."+model.Columns.Group.ID).
 		ColumnExpr("t."+model.Columns.Group.Name).
-		ColumnExpr("t."+model.Columns.Group.Decsription).
+		ColumnExpr("t."+model.Columns.Group.Description).
 		Join("inner join "+model.Tables.GroupMember.Name+" as gm").
 		JoinOn("t."+model.Columns.Group.ID+" = "+"gm."+model.Columns.GroupMember.GroupID).
 		Where(model.Columns.GroupMember.PersonID+" = ?", r.GetId()).
@@ -88,7 +88,7 @@ func (es *EventService) GetPerson(ctx context.Context, r *event.Id) (*event.Pers
 		Distinct().
 		ColumnExpr("t."+model.Columns.Group.ID).
 		ColumnExpr("t."+model.Columns.Group.Name).
-		ColumnExpr("t."+model.Columns.Group.Decsription).
+		ColumnExpr("t."+model.Columns.Group.Description).
 		Join("inner join "+model.Tables.GroupAdmin.Name+" as gm").
 		JoinOn("t."+model.Columns.Group.ID+" = "+"gm."+model.Columns.GroupAdmin.GroupID).
 		Where(model.Columns.GroupAdmin.PersonID+" = ?", r.GetId()).
@@ -305,4 +305,8 @@ func (es *EventService) SetPersonRole(ctx context.Context, r *event.PersonRoleRe
 	}
 
 	return &empty.Empty{}, nil
+}
+
+func (es *EventService) GetMemberEvents(ctx context.Context, r *event.Id) (*event.EventList, error) {
+	return nil, status.Error(codes.Unimplemented, "not implemented")
 }

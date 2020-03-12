@@ -2,7 +2,10 @@ package main
 
 import (
 	"crypto/rsa"
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/timestamp"
 	"strings"
+	"time"
 
 	"github.com/centrifugal/centrifuge-go"
 	"github.com/go-pg/pg/v9"
@@ -207,6 +210,16 @@ func boolWrapperToBoolSelector(s *wrappers.BoolValue) *boolSelector {
 	return &boolSelector{Value: &s.Value}
 }
 
+func timeToTimestamp(t time.Time) *timestamp.Timestamp {
+	res, _ := ptypes.TimestampProto(t)
+	return res
+}
+
+func timestampToTime(t *timestamp.Timestamp) time.Time {
+	res, _ := ptypes.Timestamp(t)
+	return res
+}
+
 func difference(a, b []string) []string {
 	diff := []string{}
 	m := make(map[string]struct{})
@@ -238,6 +251,7 @@ func set(a []string) []string {
 type EventService struct {
 	db         *pg.DB
 	cent       *centrifuge.Client
-	privateKey rsa.PrivateKey
-	publicKey  rsa.PublicKey
+	privateKey *rsa.PrivateKey
+	publicKey  *rsa.PublicKey
+	hmacSecret []byte
 }

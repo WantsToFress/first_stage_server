@@ -16,6 +16,32 @@
     "application/json"
   ],
   "paths": {
+    "/chat/token": {
+      "get": {
+        "summary": "get temporary chat token",
+        "description": "get temporary chat token",
+        "operationId": "GetChatToken",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/eventChatToken"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Chat"
+        ]
+      }
+    },
     "/event": {
       "post": {
         "summary": "create new event",
@@ -154,7 +180,43 @@
         "tags": [
           "Event"
         ]
-      },
+      }
+    },
+    "/event/{id}/members/add": {
+      "patch": {
+        "summary": "set event members",
+        "description": "set event members",
+        "operationId": "AddEventMembers",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "properties": {}
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/eventEventPersonsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Event"
+        ]
+      }
+    },
+    "/event/{id}/members/set": {
       "patch": {
         "summary": "set event members",
         "description": "set event members",
@@ -246,27 +308,6 @@
             "in": "query",
             "required": false,
             "type": "string"
-          },
-          {
-            "name": "start",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "format": "date-time"
-          },
-          {
-            "name": "end",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "format": "date-time"
-          },
-          {
-            "name": "is_self_assignable",
-            "in": "query",
-            "required": false,
-            "type": "boolean",
-            "format": "boolean"
           }
         ],
         "tags": [
@@ -412,7 +453,43 @@
         "tags": [
           "Group"
         ]
-      },
+      }
+    },
+    "/group/{id}/members/add": {
+      "patch": {
+        "summary": "update Group",
+        "description": "update Group",
+        "operationId": "AddGroupMembers",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "properties": {}
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/eventGroupPersonsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Group"
+        ]
+      }
+    },
+    "/group/{id}/members/set": {
       "patch": {
         "summary": "update Group",
         "description": "update Group",
@@ -654,6 +731,32 @@
         ]
       }
     },
+    "/person/{id}/events": {
+      "get": {
+        "summary": "get person events",
+        "description": "get person events",
+        "operationId": "GetMemberEvents",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/eventEventList"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Person"
+        ]
+      }
+    },
     "/person/{id}/join/event/{event_id}": {
       "patch": {
         "summary": "update Event",
@@ -730,6 +833,14 @@
     }
   },
   "definitions": {
+    "eventChatToken": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string"
+        }
+      }
+    },
     "eventEvent": {
       "type": "object",
       "properties": {
@@ -750,10 +861,6 @@
           "type": "string",
           "format": "date-time"
         },
-        "is_self_assignable": {
-          "type": "boolean",
-          "format": "boolean"
-        },
         "members": {
           "type": "array",
           "items": {
@@ -771,6 +878,9 @@
         },
         "type": {
           "$ref": "#/definitions/eventEventType"
+        },
+        "creator_id": {
+          "type": "string"
         }
       }
     },
@@ -791,12 +901,17 @@
           "type": "string",
           "format": "date-time"
         },
-        "is_self_assignable": {
-          "type": "boolean",
-          "format": "boolean"
-        },
         "type": {
           "$ref": "#/definitions/eventEventType"
+        },
+        "group_id": {
+          "type": "string"
+        },
+        "member_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },
@@ -809,8 +924,36 @@
         "events": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/eventEvent"
+            "$ref": "#/definitions/eventEventListEntry"
           }
+        }
+      }
+    },
+    "eventEventListEntry": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "start": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "end": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "type": {
+          "$ref": "#/definitions/eventEventType"
+        },
+        "creator_id": {
+          "type": "string"
         }
       }
     },
@@ -857,9 +1000,11 @@
           "type": "string",
           "format": "date-time"
         },
-        "is_self_assignable": {
-          "type": "boolean",
-          "format": "boolean"
+        "member_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },
@@ -1003,7 +1148,7 @@
         "login": {
           "type": "string"
         },
-        "student_groups": {
+        "member_groups": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/eventGroupListEntry"
@@ -1013,6 +1158,12 @@
           "type": "array",
           "items": {
             "$ref": "#/definitions/eventGroupListEntry"
+          }
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/eventEventListEntry"
           }
         },
         "role": {
