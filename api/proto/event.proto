@@ -132,7 +132,7 @@ service EventService {
     }
     rpc SetGroupAdmins (GroupPersonsRequest) returns (google.protobuf.Empty) {
         option (google.api.http) = {
-            patch: "/group/{id}/members/set"
+            patch: "/group/{id}/admins/set"
             body: "*"
         };
         option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
@@ -143,7 +143,7 @@ service EventService {
     }
     rpc AddGroupAdmins (GroupPersonsRequest) returns (google.protobuf.Empty) {
         option (google.api.http) = {
-            patch: "/group/{id}/members/add"
+            patch: "/group/{id}/admins/add"
             body: "*"
         };
         option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
@@ -223,6 +223,17 @@ service EventService {
             body: "*"
         };
         option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "update Event"
+            summary: "update Event"
+            tags: "Person"
+        };
+    }
+    rpc LeaveEvent (PersonEventAssignment) returns (google.protobuf.Empty) {
+          option (google.api.http) = {
+            patch: "/person/{id}/leave/event/{event_id}"
+            body: "*"
+        };
+          option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
             description: "update Event"
             summary: "update Event"
             tags: "Person"
@@ -328,9 +339,10 @@ message ChatToken {
 }
 
 enum EventType {
-    OPENED = 0;
-    GROUP = 1;
-    CLOSED = 2;
+    NO_EVENT = 0;
+    OPENED = 1;
+    GROUP = 2;
+    CLOSED = 3;
 }
 
 message EventCreate {
@@ -369,6 +381,7 @@ message Event {
     google.protobuf.Timestamp start = 4;
     google.protobuf.Timestamp end = 5;
     repeated PersonListEntry members = 7;
+    repeated PersonListEntry admins = 12;
     PersonListEntry creator = 8;
     repeated GroupListEntry groups = 9;
     EventType type = 10;
@@ -421,6 +434,7 @@ message GroupCreate {
     google.protobuf.StringValue name = 1;
     google.protobuf.StringValue description = 2;
     repeated string member_ids = 3;
+    repeated string admin_ids = 4;
 }
 
 message GroupUpdate {
@@ -428,6 +442,7 @@ message GroupUpdate {
     google.protobuf.StringValue name = 2;
     google.protobuf.StringValue description = 3;
     repeated string member_ids = 4;
+    repeated string admin_ids = 5;
 }
 
 message GroupUpdateRequest {

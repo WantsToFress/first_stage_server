@@ -429,6 +429,74 @@
         ]
       }
     },
+    "/group/{id}/admins/add": {
+      "patch": {
+        "summary": "update Group",
+        "description": "update Group",
+        "operationId": "AddGroupAdmins",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "properties": {}
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/eventGroupPersonsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Group"
+        ]
+      }
+    },
+    "/group/{id}/admins/set": {
+      "patch": {
+        "summary": "update Group",
+        "description": "update Group",
+        "operationId": "SetGroupAdmins",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "properties": {}
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/eventGroupPersonsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Group"
+        ]
+      }
+    },
     "/group/{id}/members": {
       "get": {
         "summary": "list Groups",
@@ -608,7 +676,7 @@
     },
     "/person/{id}": {
       "get": {
-        "summary": "get person ",
+        "summary": "get person",
         "description": "get person",
         "operationId": "GetPerson",
         "responses": {
@@ -697,6 +765,46 @@
         "summary": "update Event",
         "description": "update Event",
         "operationId": "JoinEvent",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "properties": {}
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "event_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/eventPersonEventAssignment"
+            }
+          }
+        ],
+        "tags": [
+          "Person"
+        ]
+      }
+    },
+    "/person/{id}/leave/event/{event_id}": {
+      "patch": {
+        "summary": "update Event",
+        "description": "update Event",
+        "operationId": "LeaveEvent",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -867,6 +975,12 @@
             "$ref": "#/definitions/eventPersonListEntry"
           }
         },
+        "admins": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/eventPersonListEntry"
+          }
+        },
         "creator": {
           "$ref": "#/definitions/eventPersonListEntry"
         },
@@ -974,11 +1088,12 @@
     "eventEventType": {
       "type": "string",
       "enum": [
+        "NO_EVENT",
         "OPENED",
         "GROUP",
         "CLOSED"
       ],
-      "default": "OPENED"
+      "default": "NO_EVENT"
     },
     "eventEventUpdate": {
       "type": "object",
@@ -1048,6 +1163,12 @@
           "items": {
             "type": "string"
           }
+        },
+        "admin_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },
@@ -1106,6 +1227,12 @@
           "type": "string"
         },
         "member_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "admin_ids": {
           "type": "array",
           "items": {
             "type": "string"

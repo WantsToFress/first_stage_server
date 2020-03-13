@@ -155,8 +155,63 @@ func (es *EventService) WhoAmI(ctx context.Context, r *empty.Empty) (*event.Pers
 	return es.GetPerson(ctx, &event.Id{Id: user.Id})
 }
 
-func (es *EventService) JoinEvent(context.Context, *event.PersonEventAssignment) (*empty.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "not implemented")
+func (es *EventService) JoinEvent(ctx context.Context, r *event.PersonEventAssignment) (*empty.Empty, error) {
+	log := loggerFromContext(ctx)
+
+	e := &model.Event{}
+	err := es.db.ModelContext(ctx).
+		Where(model.Columns.Event.ID+" = ?", r.GetEventId()).
+		Select()
+	if err != nil {
+		log.WithError(err).Error("unable to select event")
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	if e.Type != event.EventType_OPENED.String() {
+		return nil, status.Error(codes.PermissionDenied, "unable to join non OPENED event")
+	}
+
+	eventMember := &model.EventMember{
+		PersonID: r.GetId(),
+		EventID:  r.GetEventId(),
+	}
+	_, err = es.db.ModelContext(ctx, eventMember).
+		OnConflict("do nothing").
+		Insert()
+	if err != nil {
+		log.WithError(err).Error("unable to join event")
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &empty.Empty{}, nil
+}
+
+func (es *EventService) LeaveEvent(ctx context.Context, r *event.PersonEventAssignment) (*empty.Empty, error) {
+	log := loggerFromContext(ctx)
+
+	e := &model.Event{}
+	err := es.db.ModelContext(ctx).
+		Where(model.Columns.Event.ID+" = ?", r.GetEventId()).
+		Select()
+	if err != nil {
+		log.WithError(err).Error("unable to select event")
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	if e.Type != event.EventType_OPENED.String() {
+		return nil, status.Error(codes.PermissionDenied, "unable to join non OPENED event")
+	}
+
+	_, err = es.db.ModelContext(ctx, (*model.EventMember)(nil)).
+		Where(model.Columns.EventMember.PersonID+" = ?", r.GetId()).
+		Where(model.Columns.EventMember.EventID+" = ?", r.GetEventId()).
+		Delete()
+	if err != nil {
+		log.WithError(err).Error("unable to join event")
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &empty.Empty{}, nil
 }
 
 func (es *EventService) SetAdminGroups(ctx context.Context, r *event.PersonGroupRequest) (*empty.Empty, error) {

@@ -143,6 +143,17 @@ func (es *EventService) CreateGroup(ctx context.Context, r *event.GroupCreate) (
 			return nil, err
 		}
 	}
+	if len(r.GetAdminIds()) != 0 {
+		err := es.bindAdminsToGroup(ctx, tx, group.ID, r.GetAdminIds())
+		if err != nil {
+			log.WithError(err).Error("unable to insert group admins")
+			terr := tx.Rollback()
+			if terr != nil {
+				log.WithError(terr).Error("unable to rollback transaction")
+			}
+			return nil, err
+		}
+	}
 
 	err = tx.Commit()
 	if err != nil {
@@ -177,6 +188,7 @@ func (es *EventService) hasWriteAccessToGroup(ctx context.Context, groupId strin
 			}
 			return status.Error(codes.Internal, err.Error())
 		}
+		return nil
 	}
 
 	return status.Error(codes.PermissionDenied, "user has no write access to group")
@@ -260,15 +272,14 @@ func (es *EventService) UpdateGroup(ctx context.Context, r *event.GroupUpdateReq
 	query := tx.ModelContext(ctx, &model.Group{}).
 		Where(model.Columns.Group.ID+" = ?", r.GetGroup().GetId())
 
-	groupPrefix := "group."
 	flag := false
 
-	if funk.ContainsString(r.GetFieldMask().GetPaths(), groupPrefix+"name") {
-		query.Set(model.Columns.Group.Name+" = ?", r.GetGroup().GetName())
+	if funk.ContainsString(r.GetFieldMask().GetPaths(), "name") {
+		query.Set(model.Columns.Group.Name+" = ?", r.GetGroup().GetName().GetValue())
 		flag = true
 	}
 
-	if funk.ContainsString(r.GetFieldMask().GetPaths(), groupPrefix+"description") {
+	if funk.ContainsString(r.GetFieldMask().GetPaths(), "description") {
 		query.Set(model.Columns.Group.Description+" = ?", stringWrapperToPtr(r.GetGroup().GetDescription()))
 		flag = true
 	}
@@ -285,7 +296,7 @@ func (es *EventService) UpdateGroup(ctx context.Context, r *event.GroupUpdateReq
 		}
 	}
 
-	if funk.ContainsString(r.GetFieldMask().GetPaths(), groupPrefix+"member_ids") {
+	if funk.ContainsString(r.GetFieldMask().GetPaths(), "member_ids") {
 		err := es.unbindMembersToGroup(ctx, tx, r.GetGroup().GetId())
 		if err != nil {
 			terr := tx.Rollback()
@@ -537,21 +548,44 @@ func (es *EventService) GetGroup(ctx context.Context, r *event.Id) (*event.Group
 func (es *EventService) ListGroups(ctx context.Context, r *event.GroupListRequest) (*event.GroupList, error) {
 	log := loggerFromContext(ctx)
 
+	user, err := userFromContext(ctx)
+	if err != nil {
+		log.WithError(err).Error("unable to get user from context")
+		return nil, err
+	}
+
 	groups := []*model.Group{}
 
-	query := es.db.ModelContext(ctx, &groups)
+	query := es.db.ModelContext(ctx, &groups).Distinct()
 
 	if r.GetName() != nil {
 		query.Where(model.Columns.Group.Name+" ilike concat(?::text, '%')", r.GetName().GetValue())
 	}
 
-	query, err := paginatedQuery(query, r.GetPagination(),
+	query, err = paginatedQuery(query, r.GetPagination(),
 		model.Columns.Group.Name,
 		model.Columns.Group.CreatedAt,
 		model.Columns.Group.UpdatedAt,
 	)
 	if err != nil {
 		return nil, err
+	}
+
+	switch user.Role {
+	case event.Role_admin:
+		break
+	case event.Role_group_admin:
+		query.Join("inner join "+model.Tables.GroupAdmin.Name+" as ga").
+			JoinOn("t."+model.Columns.Group.ID+" = "+"ga."+model.Columns.GroupAdmin.GroupID).
+			Where("ga."+model.Columns.GroupAdmin.PersonID+" = ?", user.Id)
+	case event.Role_group_member:
+		query.Join("inner join "+model.Tables.GroupMember.Name+" as gm").
+			JoinOn("t."+model.Columns.Group.ID+" = "+"gm."+model.Columns.GroupMember.GroupID).
+			Where("gm."+model.Columns.GroupMember.PersonID+" = ?", user.Id)
+	case event.Role_student:
+		query.Where("false")
+	default:
+		return nil, status.Error(codes.PermissionDenied, "invalid role")
 	}
 
 	totalHist, err := query.SelectAndCount()
