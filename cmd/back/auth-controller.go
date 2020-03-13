@@ -120,6 +120,7 @@ func (es *EventService) Register(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Authorization", token)
 	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write([]byte(token))
 }
 
 func (es *EventService) Login(w http.ResponseWriter, r *http.Request) {
@@ -147,4 +148,5 @@ func (es *EventService) Login(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Authorization", token)
 	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write([]byte(token))
 }

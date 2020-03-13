@@ -205,3 +205,18 @@ DROP INDEX "role_name_index";
 CREATE UNIQUE INDEX "role_name_index" ON role USING btree (
                                                            "name"
     );
+
+CREATE TABLE "chat" (
+                        "id" uuid NOT NULL,
+                        "event_id" uuid not null,
+                        "login" uuid not null,
+                        "time" int8,
+                        PRIMARY KEY ("id")
+);
+
+CREATE INDEX "chat_login_index" ON chat USING btree (
+                                                                  "login"
+    );
+CREATE INDEX "chat_event_index" ON chat USING btree (
+                                                                  "event_id"
+    );

@@ -97,8 +97,6 @@ func main() {
 		publicKey:  pubkey,
 	}
 
-	//eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6InZwYnVraHRpIiwiZXhwIjoiMjAyMC0wMy0xNVQyMzozNzoxNS4zMTE2NDcrMDM6MDAifQ.lwj63bC1xyAL0zxwnr83IUQRaPshGLTAFTbDDqMm9_bC8lCng1SCqDQH-3LD2owd_CUjVgw5iIWVhySGWWDzIpe-W5n_JXbhYOpm9U8FHflubu-30aO3mCbn7shsgeCj6PwUNuz-TbUEIaR7uVvC1abjyvX1bQgUyA8QeUp9MdHQCecr7kCmglbvow3EHtI2yaIfpIT2BAj-lAH2DI2cpoJY2tdzF2Mo6IvESHMAUqHd7_IzIS27uiKxnvtDz8mLeKmho6C_DvdMJ1TMCNjaqYi7hqokQPhIdpN18HXuLDeyP1uGNAaZvHFvpw91fRdxv3sQ4sijTJKlF1bx6FMszQ
-
 	// grpc
 	lis, err := net.Listen("tcp", config.Server.GrpcAddress)
 	if err != nil {
