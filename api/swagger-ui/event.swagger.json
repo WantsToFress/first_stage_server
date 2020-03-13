@@ -16,6 +16,32 @@
     "application/json"
   ],
   "paths": {
+    "/chat/history": {
+      "get": {
+        "summary": "get temporary chat token",
+        "description": "get temporary chat token",
+        "operationId": "GetChatHistory",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/eventChatHistory"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Chat"
+        ]
+      }
+    },
     "/chat/token": {
       "get": {
         "summary": "get temporary chat token",
@@ -941,6 +967,17 @@
     }
   },
   "definitions": {
+    "eventChatHistory": {
+      "type": "object",
+      "properties": {
+        "messages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/eventMessage"
+          }
+        }
+      }
+    },
     "eventChatToken": {
       "type": "object",
       "properties": {
@@ -1237,6 +1274,33 @@
           "items": {
             "type": "string"
           }
+        }
+      }
+    },
+    "eventMessage": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "uid": {
+          "type": "string"
+        },
+        "login": {
+          "type": "string"
+        },
+        "full_name": {
+          "type": "string"
+        },
+        "time": {
+          "type": "string",
+          "format": "int64"
+        },
+        "message": {
+          "type": "string"
+        },
+        "event_id": {
+          "type": "string"
         }
       }
     },

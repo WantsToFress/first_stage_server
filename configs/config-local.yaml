@@ -13,7 +13,7 @@ centrifuge:
   client_id: backend
   hmac_secret: OGVhNjQxNGUtN2IxZi01ZTU2LTlkZDUtZDg3MzljNTY5NmU3
 server:
-  gateway_address: :80
+  gateway_address: localhost:443
   grpc_address: :50052
   base_path: /api
 auth:

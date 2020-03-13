@@ -97,6 +97,11 @@ func main() {
 		publicKey:  pubkey,
 	}
 
+	err = ps.WatchChat(ctx)
+	if err != nil {
+		log.WithError(err).Fatal()
+	}
+
 	// grpc
 	lis, err := net.Listen("tcp", config.Server.GrpcAddress)
 	if err != nil {

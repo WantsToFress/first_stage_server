@@ -6,10 +6,6 @@ import (
 	"time"
 )
 
-type ColumnsChat struct {
-	ID, EventID, Login, Time string
-}
-
 type ColumnsEvent struct {
 	ID, Name, Description, Start, End, CreatorID, Type, CreatedAt, UpdatedAt string
 	Creator, CreatorRel                                                      string
@@ -39,6 +35,10 @@ type ColumnsGroupMember struct {
 	Group, Person         string
 }
 
+type ColumnsMessage struct {
+	ID, PersonID, EventID, Login, FullName, Time, Message string
+}
+
 type ColumnsPerson struct {
 	ID, FullName, Login, Password, RoleID, CreatedAt, UpdatedAt string
 	Role                                                        string
@@ -53,25 +53,19 @@ type ColumnsSchemaMigration struct {
 }
 
 type ColumnsSt struct {
-	Chat            ColumnsChat
 	Event           ColumnsEvent
 	EventMember     ColumnsEventMember
 	Group           ColumnsGroup
 	GroupAdmin      ColumnsGroupAdmin
 	GroupEvent      ColumnsGroupEvent
 	GroupMember     ColumnsGroupMember
+	Message         ColumnsMessage
 	Person          ColumnsPerson
 	Role            ColumnsRole
 	SchemaMigration ColumnsSchemaMigration
 }
 
 var Columns = ColumnsSt{
-	Chat: ColumnsChat{
-		ID:      "id",
-		EventID: "event_id",
-		Login:   "login",
-		Time:    "time",
-	},
 	Event: ColumnsEvent{
 		ID:          "id",
 		Name:        "name",
@@ -125,6 +119,15 @@ var Columns = ColumnsSt{
 		Group:  "Group",
 		Person: "Person",
 	},
+	Message: ColumnsMessage{
+		ID:       "id",
+		PersonID: "person_id",
+		EventID:  "event_id",
+		Login:    "login",
+		FullName: "full_name",
+		Time:     "time",
+		Message:  "message",
+	},
 	Person: ColumnsPerson{
 		ID:        "id",
 		FullName:  "full_name",
@@ -144,10 +147,6 @@ var Columns = ColumnsSt{
 		ID:    "version",
 		Dirty: "dirty",
 	},
-}
-
-type TableChat struct {
-	Name, Alias string
 }
 
 type TableEvent struct {
@@ -174,6 +173,10 @@ type TableGroupMember struct {
 	Name, Alias string
 }
 
+type TableMessage struct {
+	Name, Alias string
+}
+
 type TablePerson struct {
 	Name, Alias string
 }
@@ -187,23 +190,19 @@ type TableSchemaMigration struct {
 }
 
 type TablesSt struct {
-	Chat            TableChat
 	Event           TableEvent
 	EventMember     TableEventMember
 	Group           TableGroup
 	GroupAdmin      TableGroupAdmin
 	GroupEvent      TableGroupEvent
 	GroupMember     TableGroupMember
+	Message         TableMessage
 	Person          TablePerson
 	Role            TableRole
 	SchemaMigration TableSchemaMigration
 }
 
 var Tables = TablesSt{
-	Chat: TableChat{
-		Name:  "chat",
-		Alias: "t",
-	},
 	Event: TableEvent{
 		Name:  "event",
 		Alias: "t",
@@ -228,6 +227,10 @@ var Tables = TablesSt{
 		Name:  "group_member",
 		Alias: "t",
 	},
+	Message: TableMessage{
+		Name:  "message",
+		Alias: "t",
+	},
 	Person: TablePerson{
 		Name:  "person",
 		Alias: "t",
@@ -240,15 +243,6 @@ var Tables = TablesSt{
 		Name:  "schema_migrations",
 		Alias: "t",
 	},
-}
-
-type Chat struct {
-	tableName struct{} `sql:"chat,alias:t" pg:",discard_unknown_columns"`
-
-	ID      string `sql:"id,pk,type:uuid"`
-	EventID string `sql:"event_id,type:uuid,notnull"`
-	Login   string `sql:"login,type:uuid,notnull"`
-	Time    *int64 `sql:"time"`
 }
 
 type Event struct {
@@ -320,6 +314,18 @@ type GroupMember struct {
 
 	Group  *Group  `pg:"fk:group_id"`
 	Person *Person `pg:"fk:person_id"`
+}
+
+type Message struct {
+	tableName struct{} `sql:"message,alias:t" pg:",discard_unknown_columns"`
+
+	ID       string    `sql:"id,pk,type:uuid"`
+	PersonID string    `sql:"person_id,type:uuid,notnull"`
+	EventID  string    `sql:"event_id,type:uuid,notnull"`
+	Login    string    `sql:"login,type:uuid,notnull"`
+	FullName string    `sql:"full_name,notnull"`
+	Time     time.Time `sql:"time,notnull"`
+	Message  string    `sql:"message,notnull"`
 }
 
 type Person struct {

@@ -302,11 +302,21 @@ service EventService {
         };
     }
 
-    //////////////////////////////// Person ////////////////////////////////
+    //////////////////////////////// Chat ////////////////////////////////
 
     rpc GetChatToken (Id) returns (ChatToken) {
         option (google.api.http) = {
             get: "/chat/token"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "get temporary chat token"
+            summary: "get temporary chat token"
+            tags: "Chat"
+        };
+    }
+    rpc GetChatHistory (Id) returns (ChatHistory) {
+        option (google.api.http) = {
+            get: "/chat/history"
         };
         option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
             description: "get temporary chat token"
@@ -505,4 +515,18 @@ message PersonRoleRequest {
 message PersonListRequest {
     Pagination pagination = 1;
     google.protobuf.StringValue search = 2;
+}
+
+message Message {
+    string id = 1;
+    string uid = 2;
+    string login = 3;
+    string full_name = 4;
+    int64 time = 5;
+    string message = 6;
+    string event_id = 7;
+}
+
+message ChatHistory {
+    repeated Message messages = 1;
 }

@@ -109,7 +109,7 @@ CREATE UNIQUE INDEX "login_password_index" ON person USING btree (
                                                                   "password"
     );
 CREATE INDEX "full_name_index" ON person USING btree (
-                                                             "full_name"
+                                                      "full_name"
     );
 
 CREATE TABLE "role" (
@@ -199,24 +199,30 @@ CREATE UNIQUE INDEX "login_password_index" ON person USING btree (
                                                                   "password"
     );
 CREATE INDEX "full_name_index" ON person USING btree (
-                                                             "full_name"
+                                                      "full_name"
     );
 DROP INDEX "role_name_index";
 CREATE UNIQUE INDEX "role_name_index" ON role USING btree (
                                                            "name"
     );
 
-CREATE TABLE "chat" (
-                        "id" uuid NOT NULL,
-                        "event_id" uuid not null,
-                        "login" uuid not null,
-                        "time" int8,
-                        PRIMARY KEY ("id")
+CREATE TABLE "message" (
+                           "id" uuid NOT NULL,
+                           "person_id" uuid NOT NULL,
+                           "event_id" uuid not null,
+                           "login" uuid not null,
+                           "full_name" varchar(1024) not null,
+                           "time" timestamp not null,
+                           "message" text not null,
+                           PRIMARY KEY ("id")
 );
 
-CREATE INDEX "chat_login_index" ON chat USING btree (
-                                                                  "login"
+CREATE INDEX "message_login_index" ON message USING btree (
+                                                           "login"
     );
-CREATE INDEX "chat_event_index" ON chat USING btree (
-                                                                  "event_id"
+CREATE INDEX "message_person_id_index" ON message USING btree (
+                                                               "person_id"
+    );
+CREATE INDEX "message_event_index" ON message USING btree (
+                                                           "event_id"
     );
