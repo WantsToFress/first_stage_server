@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"flag"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-migrate/migrate/v4"
 	stdlog "log"
 	"net"
 	"net/http"
@@ -43,17 +44,17 @@ func main() {
 
 	ctx := contextWithLogger(context.Background(), log)
 
-	//// migrate database
-	//err = Migrate(config.DB, config.Migration)
-	//if err != nil {
-	//	if err != migrate.ErrNoChange && err != migrate.ErrNilVersion {
-	//		log.WithError(err).Fatal("error on migrate")
-	//	} else {
-	//		log.Info("no actual migrations found")
-	//	}
-	//} else {
-	//	log.Info("all migrations was executed correctly")
-	//}
+	// migrate database
+	err = Migrate(config.DB, config.Migration)
+	if err != nil {
+		if err != migrate.ErrNoChange && err != migrate.ErrNilVersion {
+			log.WithError(err).Fatal("error on migrate")
+		} else {
+			log.Info("no actual migrations found")
+		}
+	} else {
+		log.Info("all migrations was executed correctly")
+	}
 
 	// create db connection
 	db, err := NewDBServer(ctx, config.DB)
